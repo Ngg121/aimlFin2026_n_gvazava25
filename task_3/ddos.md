@@ -1,9 +1,12 @@
-In this task, I analyzed a web server log file to detect the time intervals of a Distributed Denial of Service (DDoS) attack. The provided event log file was uploaded to GitHub in the same folder as the source code:
+In this task, I performed traffic analysis on a real web server event log in order to detect possible Distributed Denial of Service (DDoS) attacks. A DDoS attack attempts to overwhelm a server by sending an extremely large number of requests in a short period of time, which can disrupt normal service availability. Instead of using simple threshold-based detection, I applied regression analysis to model normal traffic behavior and identify statistically significant anomalies.
 
+The provided log file was uploaded to GitHub in the same folder as the source code:
 
 GitHub link to log file:
 
 task_3/n_gvazava25_24957_server.log 
+
+The objective of this work was to process the log data, construct a regression model representing expected traffic trends, and detect abnormal traffic spikes that indicate DDoS activity. The entire process is fully reproducible using the provided source code and described methodology.
 
 
 
@@ -60,8 +63,11 @@ The second interval reached a peak of 14,811 requests per minute with a Z-score 
 
 Conclusion
 
-Using regression analysis and statistical anomaly detection, I successfully identified two DDoS attack intervals. The method is reproducible: parse timestamps, aggregate traffic, fit regression, calculate residuals, and detect anomalies above 3σ. This approach provides a clear statistical way to detect abnormal network behavior.
+This work demonstrates how regression analysis can be effectively applied to cybersecurity log data for anomaly detection. By modeling normal web traffic using Linear Regression and analyzing standardized residuals, I was able to statistically identify abnormal traffic spikes that correspond to DDoS activity.
 
+Two attack intervals were detected, with the strongest attack occurring between 18:14 and 18:16, reaching more than 14,800 requests per minute and exceeding 4 standard deviations above the expected traffic level. Such deviation is highly unlikely under normal conditions, confirming the presence of malicious activity.
+
+The methodology is transparent and reproducible: extract timestamps, aggregate traffic, build a regression model, compute residuals, and detect anomalies using Z-score thresholding. This approach provides a mathematically grounded and reliable way to detect DDoS attacks from raw server logs, and it can be extended to real-time monitoring systems in practical cybersecurity environments.
 
 
 
