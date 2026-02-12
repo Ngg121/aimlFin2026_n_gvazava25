@@ -44,9 +44,9 @@ from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
-# -----------------------------
-# 1) Tiny dataset (inline)
-# -----------------------------
+
+1) Tiny dataset (inline)
+
 csv_data = """duration,packets,bytes,syn,ack,failed_logins,label
 2,40,5000,0,1,0,0
 1,30,4200,0,1,0,0
@@ -67,26 +67,27 @@ df = pd.read_csv(StringIO(csv_data))
 X = df.drop("label", axis=1).values
 y = df["label"].values
 
-# -----------------------------
-# 2) Scale features
-# -----------------------------
+
+ 2) Scale features
+
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# -----------------------------
-# 3) Reshape for CNN
-# We have 6 features -> make a 2x3 "image"
-# Shape: (samples, height=2, width=3, channels=1)
-# -----------------------------
+
+3) Reshape for CNN
+ We have 6 features -> make a 2x3 "image"
+ Shape: (samples, height=2, width=3, channels=1)
+
+
 X_img = X_scaled.reshape(-1, 2, 3, 1)
 
 X_train, X_test, y_train, y_test = train_test_split(
     X_img, y, test_size=0.33, random_state=42, stratify=y
 )
 
-# -----------------------------
-# 4) Build a small CNN
-# -----------------------------
+
+ 4) Build a small CNN
+
 model = models.Sequential([
     layers.Conv2D(8, (2, 2), activation="relu", input_shape=(2, 3, 1)),
     layers.Flatten(),
@@ -96,18 +97,19 @@ model = models.Sequential([
 
 model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
 
-# -----------------------------
-# 5) Train and evaluate
-# -----------------------------
+
+5) Train and evaluate
+
 history = model.fit(X_train, y_train, epochs=30, verbose=0)
 
 loss, acc = model.evaluate(X_test, y_test, verbose=0)
 print(f"Test Accuracy: {acc:.3f}")
 
-# -----------------------------
-# 6) Predict on a new "flow"
-# Example: suspicious (high packets/bytes, syn=1, ack=0, failed_logins high)
-# -----------------------------
+
+6) Predict on a new "flow"
+ Example: suspicious (high packets/bytes, syn=1, ack=0, failed_logins high)
+
+
 new_flow = np.array([[9, 410, 65000, 1, 0, 11]])
 new_flow_scaled = scaler.transform(new_flow).reshape(-1, 2, 3, 1)
 
