@@ -3,7 +3,7 @@ In this task, I analyzed a web server log file to detect the time intervals of a
 
 GitHub link to log file:
 
-
+task_3/n_gvazava25_24957_server.log 
 
 
 
