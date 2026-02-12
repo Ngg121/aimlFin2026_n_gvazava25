@@ -1,25 +1,69 @@
-Using regression-based anomaly detection, the DDoS attack occurred during:
-
-2024-03-22 18:12:00 → 18:13:00 (+04:00)
-
-2024-03-22 18:14:00 → 18:16:00 (+04:00)
+In this task, I analyzed a web server log file to detect the time intervals of a Distributed Denial of Service (DDoS) attack. The provided event log file was uploaded to GitHub in the same folder as the source code:
 
 
-Statistical Evidence
-Interval 1:
+GitHub link to log file:
 
-Peak traffic: 11,740 requests/min
 
-Z-score: 3.12
 
-Interpretation: traffic exceeded normal regression trend by >3 standard deviations
 
-Interval 2:
 
-Peak traffic: 14,811 requests/min
+Methodology
 
-Z-score: 4.20
+First, I parsed the timestamp from each log entry. The timestamps had the format:
 
-Interpretation: extremely strong anomaly (very likely DDoS burst)
+[2024-03-22 18:00:09+04:00]
+
+I extracted and converted them using:
+
+TS_REGEX = re.compile(r"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})\]")
+
+dt = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S%z")
+
+
+Then I aggregated requests per minute:
+
+df["bucket"] = df["timestamp"].dt.floor("1min")
+traffic = df.groupby("bucket").size().reset_index(name="request_count")
+
+
+To model normal traffic behavior, I applied Linear Regression:
+
+model = LinearRegression()
+model.fit(X, y)
+traffic["predicted"] = model.predict(X)
+traffic["residual"] = traffic["request_count"] - traffic["predicted"]
+
+
+Residuals were standardized using Z-score:
+
+traffic["residual_z"] = scaler.fit_transform(traffic[["residual"]])
+traffic["is_ddos"] = traffic["residual_z"] > 3.0
+
+
+Any value above 3 standard deviations was marked as anomalous.
+
+3. Regression Analysis Results
+
+The regression model estimated the normal traffic trend over time. When actual traffic significantly exceeded predicted values, the residuals became large and positive.
+
+The following DDoS intervals were detected:
+
+• 2024-03-22 18:12:00 → 18:13:00 (+04:00)
+• 2024-03-22 18:14:00 → 18:16:00 (+04:00)
+
+The second interval reached a peak of 14,811 requests per minute with a Z-score of 4.20, indicating a strong anomaly.
+
+<img width="622" height="466" alt="image" src="https://github.com/user-attachments/assets/952e4820-5b41-4675-87c9-1313c02a7f22" />
+
+
+
+
+Conclusion
+
+Using regression analysis and statistical anomaly detection, I successfully identified two DDoS attack intervals. The method is reproducible: parse timestamps, aggregate traffic, fit regression, calculate residuals, and detect anomalies above 3σ. This approach provides a clear statistical way to detect abnormal network behavior.
+
+
+
+
 
 
